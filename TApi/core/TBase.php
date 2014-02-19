@@ -6,6 +6,11 @@
  */
 class TBase
 {
+    public function __construct()
+    {
+        $this->init();
+    }
+    
     public function __get($name)
     {
         
@@ -41,7 +46,7 @@ class TBase
         
     }
     
-    public function init($params)
+    public function init()
     {
         
     }

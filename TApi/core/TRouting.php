@@ -14,4 +14,21 @@ class TRouting extends TBase
     
     public $actionName;
     public $actionPath;
+    
+    public $version;
+    
+    public function init()
+    {
+        
+    }
+    
+    public function createController()
+    {
+        T::createClass($this->controllerName);
+    }
+    
+    public function createModule()
+    {
+        
+    }
 }
