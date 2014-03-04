@@ -4,7 +4,7 @@
  * @author TLQ
  *        
  */
-class Runner extends TBase
+class TRunner extends TBase
 {
     public $config;
     public $version;

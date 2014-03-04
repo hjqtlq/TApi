@@ -4,7 +4,7 @@
  * @author TLQ
  *        
  */
-abstract class AbstractError extends TBase
+abstract class TAbstractError extends TBase
 {
     
 }

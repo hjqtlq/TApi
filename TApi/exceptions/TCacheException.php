@@ -4,7 +4,6 @@
  * @author TLQ
  *        
  */
-class T extends TApi
+class TCacheException extends TException
 {
-    
 }

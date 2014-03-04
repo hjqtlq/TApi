@@ -4,7 +4,7 @@
  * @author TLQ
  *        
  */
-class T extends TApi
+class TSystemError extends TAbstractError
 {
     
 }

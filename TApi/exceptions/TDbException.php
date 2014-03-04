@@ -4,7 +4,6 @@
  * @author TLQ
  *        
  */
-class SystemError extends AbstractError
+class TDbException extends TException
 {
-    
 }

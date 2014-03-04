@@ -4,7 +4,6 @@
  * @author TLQ
  *        
  */
-class T extends TApi
+class FileTool extends TBase
 {
-    
 }

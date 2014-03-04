@@ -4,6 +4,6 @@
  * @author TLQ
  *        
  */
-class UserController
+class TConfigException extends TException
 {
 }
