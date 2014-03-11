@@ -1,16 +1,44 @@
 <?php
+/**
+ * TController.php
+ *
+ * 控制器文件
+ *
+ * @author T.L.Q. <hjq_tlq@163.com>
+ * @link http://www.tapi.com.cn/
+ * @copyright 2014 TApi team
+ * @license http://www.tapi.com.cn/license/
+ */
+
+/**
+ * TController
+ *
+ * 控制器基类，所有controller都需要继承自改类
+ *
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 class TController extends TBase
 {
+    /**
+     * @var string action id
+     */
     public $actionId;
+    /**
+     * @var string action方法名称
+     */
     public $actionMethodName;
+    /**
+     * @var string controller类名
+     */
     public $controllerClassName;
     
-    public function init($scheduler = null)
+    public function init($application = null)
     {
-        $this->actionId = $scheduler->getActionId();
-        $this->actionMethodName = $scheduler->getActionMethodName();
-        $this->controllerClassName = $scheduler->getControllerClassName();
-        $this->realVersion = $scheduler->getVersionController()->getRealVersion();
+        $this->actionId = $application->getActionId();
+        $this->actionMethodName = $application->getActionMethodName();
+        $this->controllerClassName = $application->getControllerClassName();
+        $this->realVersion = $application->getVersionController()->getRealVersion();
     }
     
     public function __call($name, $args)
@@ -39,6 +67,11 @@ class TController extends TBase
         return $this->actionMethodName;
     }
     
+    /**
+     * 运行action方法
+     * @throws TException 当beforeAction返回false的时候会抛出
+     * @throws TRequestException 当没有找到对应的action的时候抛出
+     */
     public function run()
     {
         if(false === $this->_beforeAction()) {
@@ -55,16 +88,22 @@ class TController extends TBase
     
     private function _beforeAction()
     {
-        $this->beforeAction();
+        return $this->beforeAction();
     }
     
-    public function beforeAction(){}
+    public function beforeAction()
+    {
+        return true;
+    }
     
     private function _afterAction()
     {
         TResponse::send();
-        $this->afterAction();
+        return $this->afterAction();
     }
     
-    public function afterAction(){}
+    public function afterAction()
+    {
+        return true;
+    }
 }

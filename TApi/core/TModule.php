@@ -9,7 +9,16 @@ class TModule extends TBase
     private $_requestModuleId;
     private $_requestVersionString;
     private $application = null;
-    
+    /**
+     * 初始化参数
+     * 
+     * 引入使用module的时候所必须的文件@see TApi::addImports($this->import());
+     * 初始化module ID
+     * 初始化controller ID
+     * 初始化action ID
+     * 
+     * @see TBase::init()
+     */
     public function init($scheduler = null)
     {
         $this->application = $scheduler;

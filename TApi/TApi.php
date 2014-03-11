@@ -1,14 +1,32 @@
 <?php
 define('DS', DIRECTORY_SEPARATOR);
 defined('TAPI_ROOT') or define('TAPI_ROOT', dirname(__FILE__) . DS);
+/**
+ * TApi.php
+ *
+ * TApi入口文件
+ *
+ * @author T.L.Q. <hjq_tlq@163.com>
+ * @link http://www.tapi.com.cn/
+ * @copyright 2014 TApi team
+ * @license http://www.tapi.com.cn/license/
+ */
+
+/**
+ * TApi
+ *
+ * TApi入口类，所有请求需要通过此类来创建
+ * 这是一个静态类，目的是为了方便调用，并且提供一下常用方法的代理
+ *
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 class TApi
 {
     private static $_request;
-//     private static $_scheduler;
     private static $_version;
     private static $_versionController;
     private static $_imports = array();
-//     private static $_storage = null;
     private static $_application = null;
     private static $_controller = null;
     private static $_config = array();

@@ -1,8 +1,23 @@
 <?php
 /**
- *
- * @author TLQ
- *        
+ * TBase.php
+ * 基础文件
+ * @author T.L.Q. <hjq_tlq@163.com>
+ * @link http://www.tapi.com.cn/
+ * @copyright 2014 TApi team
+ * @license http://www.tapi.com.cn/license/
+ */
+
+/**
+ * TBase框架基类
+ * 框架中除去TApi和T类中，其他所有文件的基类
+ * 定义了常用的魔术方法，一些常用的方法
+ * 
+ * @method init 初始化方法，当使用createClass方式创建的时候会默认调用此方法
+ * @method getValue 从数组或者对象中获取属性，如果没有返回默认值
+ * 
+ * @version 1.0.0
+ * @since 1.0.0
  */
 class TBase
 {
