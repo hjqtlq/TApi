@@ -33,12 +33,12 @@ class TController extends TBase
      */
     public $controllerClassName;
     
-    public function init($application = null)
+    public function init($route = null)
     {
-        $this->actionId = $application->getActionId();
-        $this->actionMethodName = $application->getActionMethodName();
-        $this->controllerClassName = $application->getControllerClassName();
-        $this->realVersion = $application->getVersionController()->getRealVersion();
+        $this->actionId = $route->getActionId();
+        $this->actionMethodName = $route->getActionMethodName();
+        $this->controllerClassName = $route->getControllerClassName();
+        $this->realVersion = $route->getRealVersion();
     }
     
     public function __call($name, $args)
@@ -77,7 +77,6 @@ class TController extends TBase
         if(false === $this->_beforeAction()) {
             throw new TException();
         }
-        var_dump($this->getActionMethodName());
         $action = $this->getActionMethodName();
         if(!method_exists($this, $action)) {
             throw new TRequestException();

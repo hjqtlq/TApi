@@ -48,43 +48,9 @@
 class TApplication extends TBase
 {
     /**
-     * @var string 默认action ID
-     */
-    public $defaultActionId = 'index';
-    /**
-     * @var string 默认controller ID
-     */
-    public $defaultControllerId = 'site';
-    /**
-     * @var string 请求路由中action的参数名称
-     */
-    public $actionVar = 'a';
-    /**
-     * @var string 请求路由中controller的参数名称
-     */
-    public $controllerVar = 'c';
-    /**
-     * @var string 请求路由中module的参数名称
-     */
-    public $moduleVar = 'm';
-    
-    /**
-     * @var string 请求路由中version的参数名称
-     */
-    public $versionVar = 'v';
-    /**
-     * @var TVersionController 版本控制器实例
-     */
-    public $versionController;
-    
-    /**
      * @var TModule 模块实例
      */
     public $module;
-    /**
-     * @var string 当前请求的module ID
-     */
-    public $moduleId;
     /**
      * @var string 当前请求的module路径别名
      */
@@ -95,40 +61,9 @@ class TApplication extends TBase
      */
     public $controller;
     /**
-     * @var string 当前请求的controller ID
-     */
-    public $controllerId;
-    /**
-     * @var string 当前请求controller名称，完整的controller类称
-     */
-    public $controllerClassName;
-    /**
      * @var string controller路径别名
      */
     public $controllerAlias;
-    
-    /**
-     * @var string 当前请求的action ID
-     */
-    public $actionId;
-    /**
-     * @var string 当前请求的action方法名称，完整的action方法名
-     */
-    public $actionMethodName;
-    
-    /**
-     * @var string 当前请求的版本号
-     */
-    public $version;
-    /**
-     * @var string 经过版本控制器处理后对应真实的文件版本号
-     */
-    public $realVersionString;
-    
-    /**
-     * @var TRequest TRequest实例
-     */
-    public $request;
     
     /**
      * 运行API
@@ -136,11 +71,19 @@ class TApplication extends TBase
      */
     public function run()
     {
-        //TODO FIX 这里需要些版本验证逻辑
+        //FIXME 这里需要些版本验证逻辑
         if(true !== $this->praseRequest()) {
             throw new TRequestException();
         }
-        $this->createController()->run();
+        $this->createController($this->getRoute())->run();
+    }
+    
+    /**
+     * @return TRoute
+     */
+    public function getRoute()
+    {
+        return TApi::createClass('TRoute');
     }
     
     /**
@@ -148,53 +91,20 @@ class TApplication extends TBase
      * 
      * 得到controller的别名路径。如果使用module则得到module实例和module的别名路径
      * 
-     * 未来对request的处理都在这里进行
+     * TODO 未来对request的处理都在这里进行
      * 
      * @return boolean 如果处理成功返回true，失败返回false
      */
     public function praseRequest()
     {
         // TODO FIX，需要验证参数是否合法以及是否完整
-//         $this->controllerClassName = $this->getControllerId() . 'Controller';
-//         $this->actionMethodName = $this->getActionId() . 'Action';
-//         $this->version = $this->getVersionController()->getRealVersion();
-//         $this->versionString = $this->getVersionController()->getVersion(true);
         if($this->usingModule()) {
-            $module = $this->getModule();
-            $this->moduleAlias = $module->getModuleAlias();
-            $this->controllerAlias = $module->getControllerAlias();
+            $this->moduleAlias = $this->getModule()->getModuleAlias();
+            $this->controllerAlias = $this->getModule()->getControllerAlias();
         } else {
             $this->controllerAlias = TController::getAlias();
         }
         return true;
-    }
-    
-    /**
-     * 得到request实例中的值
-     * 
-     * 代理方法，方便获取request的值
-     * 
-     * @param string $key request中的值
-     * @return mixed 如果值不存在返回null，存在返回对应的值
-     */
-    public function getRequest($key = null)
-    {
-        return $this->request->get($key);
-    }
-    
-    /**
-     * 得到版本控制器
-     * 
-     * TODO 需要考虑是否要将版本控制器放入UrlManage里面去
-     * 
-     * @return TVersionController
-     */
-    public function getVersionController()
-    {
-        if(empty($this->versionController)) {
-            $this->versionController = TApi::createClass('TVersionController');
-        }
-        return $this->versionController;
     }
     
     /**
@@ -204,9 +114,9 @@ class TApplication extends TBase
      * 
      * @return multitype:
      */
-    public function createController()
+    public function createController($route)
     {
-        return TApi::createClass($this->getControllerAlias(), $this);
+        return TApi::createClass($this->getControllerAlias(), $route);
     }
     
     /**
@@ -219,28 +129,7 @@ class TApplication extends TBase
      */
     public function init($params = null)
     {
-        $this->request = TApi::createClass('TRequest', $_REQUEST);
-        // TODO just a demo,init config
-        if(isset(TApi::getConfig()->application)) {
-            $applicationConfig = TApi::getConfig()->application;
-            if(isset($applicationConfig->actionVar)) {
-                $this->actionVar = $applicationConfig->actionVar;
-            }
-        }
-        $this->moduleId = $this->request->{$this->moduleVar};
-        $this->module = TApi::createClass('TModule', $this);
-        
-        $controllerId = $this->request->{$this->controllerVar};
-        $this->controllerId = empty($controllerId) ? $this->defaultControllerId : ucfirst($controllerId);
-        $this->controllerClassName = $this->controllerId . 'Controller';
-        
-        $actionId = $this->request->{$this->actionVar};
-        $this->actionId = empty($actionId) ? $this->defaultActionId : strtolower($actionId);
-        $this->actionMethodName = $this->actionId . 'Action';
-        
-        $this->versionController = TApi::createClass('TVersionController');
-        $this->version = $this->versionController->getVersion();
-        $this->realVersionString = $this->versionController->getRealVersion(array('toString' => true));
+        $this->module = TApi::createClass('TModule', $this->getRoute());
     }
     
     public function getModule()
@@ -248,86 +137,22 @@ class TApplication extends TBase
         return $this->module;
     }
     
-    public function getModuleId($moduleId = null)
-    {
-        return $this->moduleId;
-    }
-
-    /**
-     * @param field_type $_moduleId
-     */
-    public function setModuleId($moduleId)
-    {
-        $this->moduleId = $moduleId;
-    }
-    
     public function getModuleAlias($moduleName = null, $version = null)
     {
         return $this->getModule()->getModuleAlias($moduleName = null, $version = null);
     }
     
-    public function getControllerId($controllerId = null)
-    {
-        return is_null($controllerId) ? $this->getRequest($this->controllerVar) : $controllerId;
-    }
-    
-    public function getControllerClassName($controllerId = null)
-    {
-        $controllerId = is_null($controllerId) ? $this->getControllerId($controllerId) : $controllerId;
-        return $controllerId . 'Controller';
-    }
-    
-    public function getActionMethodName($actionId = null)
-    {
-        if(empty($actionId)) {
-            return $this->actionMethodName;
-        }
-        return $this->actionId . 'Action';
-    }
-    
     public function getControllerAlias($controllerId = null, $moduleName = null, $version = null)
     {
         if($this->usingModule()) {
-            return $this->getModule()->getControllerAlias($controllerId, $moduleName, $version);
+            return $this->getModule()->getControllerAlias();
         }
-        return '@controller.' . $this->addVersionPath() . $this->getControllerClassName($controllerId);
+        return '@controller.' . $this->addVersionPath() . $this->getRoute()->getControllerClassName($controllerId);
     }
 
     public function usingModule()
     {
-        return $this->getModuleId() ? true : false;
-    }
-
-	/**
-     * @return the $_controllerId
-     */
-    public function _getControllerId()
-    {
-        return $this->controllerId;
-    }
-
-	/**
-     * @param field_type $_controllerId
-     */
-    public function setControllerId($controllerId)
-    {
-        $this->controllerId = $controllerId;
-    }
-
-	/**
-     * @return the $_actionId
-     */
-    public function getActionId()
-    {
-        return $this->actionId;
-    }
-
-	/**
-     * @param field_type $_actionId
-     */
-    public function setActionId($actionId)
-    {
-        $this->actionId = $actionId;
+        return $this->getRoute()->getModuleId() ? true : false;
     }
 
 	/**

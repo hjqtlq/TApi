@@ -1,14 +1,14 @@
 <?php
 class TModule extends TBase
 {
-    private $_controllerAlias;
-    private $moduleId;
-    private $controllerId;
-    private $actionId;
-    private $_moduleAliases;
-    private $_requestModuleId;
-    private $_requestVersionString;
-    private $application = null;
+    public $controllerAlias;
+    public $moduleId;
+    public $controllerId;
+    public $actionId;
+    public $moduleAlias;
+    
+    
+    private $route = null;
     /**
      * 初始化参数
      * 
@@ -19,18 +19,17 @@ class TModule extends TBase
      * 
      * @see TBase::init()
      */
-    public function init($scheduler = null)
+    public function init($route = null)
     {
-        $this->application = $scheduler;
+        $this->route = $route;
         TApi::addImports($this->import());
         
-        $this->moduleId = $scheduler->getModuleId();
-        $this->controllerId = $scheduler->getControllerId();
-        $this->actionId = $scheduler->getActionId();
+        $this->moduleAlias = '@module.' . $this->route->realVersionString . '.' . $this->route->getModuleId();
+        $this->controllerAlias = $this->moduleAlias . '.' . $this->route->getControllerClassName();
         
-//         $this->_requestControllerId = $scheduler->getControllerId();
-//         $this->_requestModuleId = $scheduler->getModuleId();
-//         $this->_requestVersionString = $scheduler->getVersion(true);
+        $this->moduleId = $route->getModuleId();
+        $this->controllerId = $route->getControllerId();
+        $this->actionId = $route->getActionId();
     }
     
     public function import()
@@ -38,15 +37,20 @@ class TModule extends TBase
         return array();
     }
     
+    private function getModuleAlias()
+    {
+        return $this->moduleAlias;
+    }
+    
     // TODO 暂时不提供此方法，因为会有传值来源的问题，例如actionId从哪来，以及配置文件如何来
-    private function getModuleAlias($moduleId = null, $version = null, $controllerId = null, $actionId = null)
+    private function createModuleAlias($moduleId = null, $version = null, $controllerId = null, $actionId = null)
     {
         $classCacheKey = $this->moduleId.'_'.$version;
         if(!isset($this->_moduleAliases[$classCacheKey])) {
             $realVersion = TApi::getRealVersion(
                 $actionId, $controllerId, $moduleId, $version
             );
-            $this->_moduleAliases[$classCacheKey] = '@module.' . $this->application->realVersionString . '.' . $this->application->getModuleId();
+            $this->_moduleAliases[$classCacheKey] = '@module.' . $this->route->realVersionString . '.' . $this->route->getModuleId();
         }
         return $this->_moduleAliases[$classCacheKey];    
     }
@@ -59,13 +63,12 @@ class TModule extends TBase
     
     public function getModulePath($moduleName = null, $version = null)
     {
-        return TApi::realPath($this->getModuleAlias($moduleName, $version));
+        return TApi::realPath($this->getModuleAlias());
     }
     
-    public function getControllerAlias($controllerId = null, $moduleName = null, $version = null)
+    public function getControllerAlias()
     {
-        return $this->getModuleAlias($moduleName, $version) . '.'
-             . $this->application->getControllerClassName($controllerId);
+        return $this->controllerAlias;
     }
     
     public function getControllerPath()

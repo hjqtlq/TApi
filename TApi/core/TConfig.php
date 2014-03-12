@@ -23,24 +23,24 @@
  */
 class TConfig extends TBase
 {
-    private $_config;
+    public $config;
  
     public function __construct($array)
     {
-        $this->_config = $array;
+        $this->config = $array;
     }
     public function __get($name)
     {
-        if(!isset($this->_config[$name])) {
+        if(!isset($this->config[$name])) {
             return null;
         }
-        return is_array($this->_config[$name]) ?
-            new TConfig($this->_config[$name]) :
-            $this->_config[$name];
+        return is_array($this->config[$name]) ?
+            new TConfig($this->config[$name]) :
+            $this->config[$name];
     }
 
     public function __isset($name)
     {
-        return isset($this->_config[$name]);
+        return isset($this->config[$name]);
     }
 }

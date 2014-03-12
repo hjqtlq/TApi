@@ -24,14 +24,25 @@ class TVersionController extends TBase
 {
     private $_requestVersion = null;
     private $_versionConfig = array();
+    public $controlLeave;
+    /**
+     * @var string 默认版本号
+     */
+    public $defaultVersion = '1.0.0';
     
     public function init($version = null)
     {
-        $this->setVersion($version);
-        $this->_requestVersion = $_REQUEST[TApi::getConfig()->versionControl->versionVar];
+        $config = TApi::getConfig()->versionControl;
+        if(!isset($_REQUEST[$config->versionVar])) {
+            $this->_requestVersion = $this->defaultVersion;
+        } else {
+            $this->_requestVersion = $_REQUEST[$config->versionControl->versionVar];
+        }
         // TODO require version config file
         $requestVersionConfig = require API_ROOT . '/' . API_NAME . '/config/versions/' . $this->_requestVersion . '.php';
         $this->_versionConfig[$this->_requestVersion] = $requestVersionConfig;
+        $this->_versionControlLeave = $config->versionControlLeave;
+        var_dump($this->_versionControlLeave);
     }
     
     public function getConfig()
@@ -46,6 +57,12 @@ class TVersionController extends TBase
      */
     public function getRealVersion($params = array())
     {
+        $realVersion = $this->_requestVersion;
+        $toString = $this->getValue($params, 'toString', false);
+        if($toString) {
+            $realVersion = $this->getVersion($toString, $realVersion);
+        }
+        return $realVersion;
         /*
          * TODO FIX 需要用工厂建立
          */
@@ -53,7 +70,6 @@ class TVersionController extends TBase
         $toString = $this->getValue($params, 'toString', false);
         if($toString) {
             $realVersion = $this->getVersion($toString, $realVersion);
-            
         }
         return $realVersion;
     }
@@ -61,6 +77,9 @@ class TVersionController extends TBase
     public function getVersion($toString = false, $version = null)
     {
         $version = is_null($version) ? $this->_requestVersion : $version;
+        if(empty($version)) {
+            $version = $this->defaultVersion;
+        }
         if($toString) {
             $version = str_replace('.', '_', $version);
         }

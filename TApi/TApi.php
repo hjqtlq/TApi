@@ -45,6 +45,11 @@ class TApi
         return self::$_config;
     }
     
+    public static function getR()
+    {
+        return TApi::createClass('TRequest');
+    }
+    
     public static function getApp()
     {
 //         return new TScheduler();
@@ -101,6 +106,9 @@ class TApi
     
     public static function getRequest($key = null)
     {
+        if(empty($key)) {
+            return self::getApp()->request;
+        }
         return self::getApp()->getRequest($key);
     }
     
@@ -179,6 +187,7 @@ class TApi
     private static $_corePaths = array(
         'T' => 'T.php',
         'TBase' => 'core/TBase.php',
+        'TRoute' => 'core/TRoute.php',
         'TController' => 'core/TController.php',
         'TVersionController' => 'core/TVersionController.php',
         'TModel' => 'core/TModel.php',
